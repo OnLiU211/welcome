@@ -1,0 +1,12 @@
+{
+  "extends": ["tslint-config-standard", "tslint-config-prettier"],
+  "linterOptions": {
+    "exclude": ["node_modules/**/*.ts"]
+  },
+  "rules": {
+    "semicolon": [true, "never"],
+    "quotemark": [true, "single"],
+    "ordered-imports": true,
+    "member-ordering": true
+  }
+}

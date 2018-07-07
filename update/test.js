@@ -56,7 +56,7 @@ describe('update', () => {
       ).toBe(4)
     })
 
-    it.skip('should support deep updates', () => {
+    it('should support deep updates', () => {
       expect(update({ a: 'b', c: { d: 'e' } }, { c: { d: { $set: 'f' } } })).toEqual({
         a: 'b',
         c: { d: 'f' }

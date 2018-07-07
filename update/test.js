@@ -1,7 +1,7 @@
 const update = require('./your-file') // <- this is the file you make;
 
 describe('update', () => {
-  describe.skip('has a #$set method that', () => {
+  describe('has a #$set method that', () => {
     let state
     let commands
     let nextState

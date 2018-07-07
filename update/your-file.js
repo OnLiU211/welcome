@@ -1,44 +1,41 @@
 const COMMAND_LIST = ['$set', '$push', '$unshift', '$merge', '$apply', '$splice']
 
 class Command {
-  static execute(currentState, [key, value]) {
-    console.log({ currentState, key, value, children: value[key], type: typeof value })
+  static execute(state, command) {
+    if (command.$set) {
+      state = command.$set
+      return state
+    }
 
-    return currentState
+    if (command.$push) {
+      state.push(...command.$push)
+      return state
+    }
 
-    return Object.entries(value).reduce(Command.execute, currentState[key])
+    if (command.$unshift) {
+      state.unshift(...command.$unshift)
+      return state
+    }
 
-    // if (!value) {
-    //   return currentState
-    // }
+    if (command.$merge) {
+      Object.assign(state, command.$merge)
+      return state
+    }
 
-    // console.log({ currentState, key, value })
-    // if (value.$set) {
-    //   currentState[key] = value.$set
-    // }
+    if (command.$apply) {
+      state = command.$apply(state)
+      return state
+    }
 
-    // if (value.$push) {
-    //   currentState[key].push(value.$push)
-    // }
+    if (command.$splice && Array.isArray(state)) {
+      command.$splice.forEach(([index, count, newElement]) => {
+        state.splice(index, count, newElement)
+      })
+      return state
+    }
 
-    // if (value.$unshift) {
-    //   currentState[key].unshift(value.$unshift)
-    // }
-
-    // if (value.$merge) {
-    //   Object.assign(currentState[key], value.$merge)
-    // }
-
-    // if (value.$apply) {
-    //   currentState[key] = value.$apply(currentState[key])
-    // }
-
-    // if (value.$splice) {
-    //   value.$splice.forEach(([index, count, newElement]) => {
-    //     currentState[key].splice(index, count, newElement)
-    //   })
-    // }
+    return state
   }
 }
 
-module.exports = (state, command) => Object.entries(command).reduce(Command.execute, state)
+module.exports = (state, command) => Command.execute(state, command)

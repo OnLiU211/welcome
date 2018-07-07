@@ -1,7 +1,7 @@
 const update = require('./your-file') // <- this is the file you make;
 
 describe('update', () => {
-  describe('has a #$set method that', () => {
+  describe.skip('has a #$set method that', () => {
     let state
     let commands
     let nextState
@@ -26,27 +26,27 @@ describe('update', () => {
     })
   })
 
-  describe.skip("can pass react's test suite", () => {
-    it.skip('should support set', () => {
+  describe("can pass react's test suite", () => {
+    it('should support set', () => {
       expect(update({ a: 'b' }, { $set: { c: 'd' } })).toEqual({ c: 'd' })
     })
 
-    it.skip('should support push', () => {
+    it('should support push', () => {
       expect(update([1], { $push: [7] })).toEqual([1, 7])
     })
 
-    it.skip('should support unshift', () => {
+    it('should support unshift', () => {
       expect(update([1], { $unshift: [7] })).toEqual([7, 1])
     })
 
-    it.skip('should support merge', () => {
+    it('should support merge', () => {
       expect(update({ a: 'b' }, { $merge: { c: 'd' } })).toEqual({
         a: 'b',
         c: 'd'
       })
     })
 
-    it.skip('should support apply', () => {
+    it('should support apply', () => {
       expect(
         update(2, {
           $apply: function(x) {
@@ -63,7 +63,7 @@ describe('update', () => {
       })
     })
 
-    it.skip('should support splice', () => {
+    it('should support splice', () => {
       expect(update([1, 4, 3], { $splice: [[1, 1, 2]] })).toEqual([1, 2, 3])
     })
   })

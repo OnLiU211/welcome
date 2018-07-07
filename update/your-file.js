@@ -1,68 +1,70 @@
 class Immutable {
   static execute(state, command) {
-    const visitor = (state, parentKey, parentState) => ([key, command]) => {
-      if (key === '$set') {
-        Object.keys(state).forEach(stateKey => {
-          delete state[stateKey]
-        })
-        Object.keys(command).forEach(commandKey => {
-          state[commandKey] = command[commandKey]
-        })
+    const visitor = (currentState, parentKey, parentState) => ([key, command]) => {
+      const LIGHT_COMMAND_MAP = {
+        $set() {
+          Object.keys(currentState).forEach(stateKey => {
+            delete currentState[stateKey]
+          })
+          Object.keys(command).forEach(commandKey => {
+            currentState[commandKey] = command[commandKey]
+          })
+        },
+        $push() {
+          currentState.push(...command)
+        },
+        $unshift() {
+          currentState.unshift(...command)
+        },
+        $merge() {
+          Object.assign(currentState, command)
+        },
+        $splice() {
+          command.forEach(([startIndex, deleteCount, newElement]) => {
+            currentState.splice(startIndex, deleteCount, newElement)
+          })
+        }
+      }
+
+      if (LIGHT_COMMAND_MAP[key]) {
+        LIGHT_COMMAND_MAP[key]()
+        return
       }
 
       if (command.$set) {
-        parentState[parentKey][key] = command.$set
-      }
-
-      if (key === '$push') {
-        state.push(...command)
+        console.log({ key, currentState, parentState, parentKey })
+        parentState[parentKey] = { ...parentState[parentKey], [key]: command.$set }
+        console.log({ key, currentState, parentState })
       }
 
       if (command.$push) {
-        state[key].push(...command.$push)
-      }
-
-      if (key === '$unshift') {
-        state.unshift(...command)
+        currentState[key].push(...command.$push)
       }
 
       if (command.$unshift) {
-        state[key].unshift(...command.$unshift)
-      }
-
-      if (key === '$merge') {
-        Object.assign(state, command)
+        currentState[key].unshift(...command.$unshift)
       }
 
       if (command.$merge) {
-        Object.assign(state[key], command.$merge)
-      }
-
-      if (key === '$apply') {
-        state = command(state)
+        Object.assign(currentState[key], command.$merge)
       }
 
       if (command.$apply) {
-        state[key] = command.$apply(state[key])
-      }
-
-      if (key === '$splice') {
-        command.forEach(([startIndex, deleteCount, newElement]) => {
-          state.splice(startIndex, deleteCount, newElement)
-        })
+        currentState[key] = command.$apply(currentState[key])
       }
 
       if (command.$splice) {
         command.$splice.forEach(([startIndex, deleteCount, newElement]) => {
-          state[key].splice(startIndex, deleteCount, newElement)
+          currentState[key].splice(startIndex, deleteCount, newElement)
         })
       }
 
-      if (typeof state[key] === 'object' && !Array.isArray(state[key])) {
-        Object.entries(command).forEach(visitor(state[key], key, state))
+      if (typeof currentState[key] === 'object' && !Array.isArray(currentState[key])) {
+        Object.entries(command).forEach(visitor(currentState[key], key, currentState))
       }
     }
 
+    // string/number 등 예외 케이스에 대한 예외 코드
     if (typeof state !== 'object') {
       if (command.$set) {
         return command.$set
